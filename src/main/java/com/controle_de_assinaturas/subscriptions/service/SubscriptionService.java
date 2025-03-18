@@ -1,5 +1,6 @@
 package com.controle_de_assinaturas.subscriptions.service;
 
+import com.controle_de_assinaturas.kafka.producer.SubscriptionProducer;
 import com.controle_de_assinaturas.plans.entity.Plan;
 import com.controle_de_assinaturas.plans.repositorie.PlanRepository;
 import com.controle_de_assinaturas.subscriptions.entity.Subscription;
@@ -15,11 +16,15 @@ public class SubscriptionService {
 
     private final PlanRepository planRepository;
 
+    private final SubscriptionProducer subscriptionProducer;
+
     public SubscriptionService (SubscriptionRepository subscriptionRepository,
-                                PlanRepository planRepository) {
+                                PlanRepository planRepository,
+                                SubscriptionProducer subscriptionProducer) {
 
         this.subscriptionRepository = subscriptionRepository;
         this.planRepository = planRepository;
+        this.subscriptionProducer = subscriptionProducer;
     }
 
     public SubscriptionResponse createSubscription(SubscriptionEntryDTO data) {
@@ -34,6 +39,8 @@ public class SubscriptionService {
                     data.getCustomerEmail());
 
             subscriptionRepository.save(newSubscription);
+
+            subscriptionProducer.sendSubscriptionCreateEvent(newSubscription);
 
             return new SubscriptionResponse(newSubscription.getId(),
                     newSubscription.getStatus(),

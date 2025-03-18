@@ -1,5 +1,7 @@
 package com.controle_de_assinaturas.subscriptions.controller;
 
+import com.controle_de_assinaturas.kafka.producer.PaymentWebHookDTO;
+import com.controle_de_assinaturas.kafka.producer.PaymentWebHookProducer;
 import com.controle_de_assinaturas.subscriptions.service.SubscriptionEntryDTO;
 import com.controle_de_assinaturas.subscriptions.service.SubscriptionResponse;
 import com.controle_de_assinaturas.subscriptions.service.SubscriptionService;
@@ -15,9 +17,13 @@ public class SubscriptionController {
 
     private final SubscriptionService subscriptionService;
 
-    public SubscriptionController(SubscriptionService subscriptionService) {
+    private final PaymentWebHookProducer paymentWebHookProducer;
+
+    public SubscriptionController(SubscriptionService subscriptionService,
+                                  PaymentWebHookProducer paymentWebHookProducer) {
 
         this.subscriptionService = subscriptionService;
+        this.paymentWebHookProducer = paymentWebHookProducer;
     }
 
     @PostMapping("/register")
@@ -28,5 +34,13 @@ public class SubscriptionController {
                 subscriptionService.createSubscription(data);
 
         return ResponseEntity.ok().body(subscriptionResponse);
+    }
+
+    @PostMapping("/payment")
+    public ResponseEntity<Void> paymentWebHook(@RequestBody PaymentWebHookDTO data) {
+
+        paymentWebHookProducer.sendPaymentWebHook(data);
+
+        return ResponseEntity.ok().body(null);
     }
 }

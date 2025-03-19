@@ -1,9 +1,13 @@
 package com.controle_de_assinaturas.plans.entity;
 
 import com.controle_de_assinaturas.plans.service.DTOs.PlanEntryDTO;
+import com.controle_de_assinaturas.subscriptions.entity.Status;
+import com.controle_de_assinaturas.subscriptions.entity.Subscription;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Entity
 @Table(name = "plans")
@@ -23,6 +27,10 @@ public class Plan {
     @Column(name = "billing_cycle")
     @Enumerated(EnumType.STRING)
     private BillingCycle billingCycle = BillingCycle.Mensal;
+
+    @OneToMany(mappedBy = "plan", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<Subscription> subscriptions;
 
     public Plan() {
     }
@@ -59,5 +67,23 @@ public class Plan {
 
     public void setBillingCycle(BillingCycle billingCycle) {
         this.billingCycle = billingCycle;
+    }
+
+    public StatusSubscriptionsPlan getSubscriptions() {
+
+        int assinaturasAtivas = 0;
+        int assinaturascanceladas = 0;
+
+        for(int i = 0; i < subscriptions.size(); i++) {
+
+            if(subscriptions.get(i).getStatus().equals(Status.Ativa)) {
+
+                assinaturasAtivas += 1;
+            } else if(subscriptions.get(i).getStatus().equals(Status.Cancelada)) {
+
+                assinaturascanceladas += 1;
+            }
+        }
+        return new StatusSubscriptionsPlan(assinaturasAtivas, assinaturascanceladas);
     }
 }

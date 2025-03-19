@@ -1,12 +1,10 @@
 package com.controle_de_assinaturas.plans.controller;
 
 import com.controle_de_assinaturas.plans.service.DTOs.PlanEntryDTO;
+import com.controle_de_assinaturas.plans.service.DTOs.PlanResponseSubscriptionsStatus;
 import com.controle_de_assinaturas.plans.service.PlanService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/plan")
@@ -25,5 +23,14 @@ public class PlanController {
         planService.createPlan(data);
 
         return ResponseEntity.ok().body("");
+    }
+
+    @GetMapping("/reports/subscriptions")
+    public ResponseEntity<PlanResponseSubscriptionsStatus> getStatusSubscriptionStatus() {
+
+        PlanResponseSubscriptionsStatus status =
+                planService.getSubscriptionMetrics();
+
+        return ResponseEntity.ok().body(status);
     }
 }

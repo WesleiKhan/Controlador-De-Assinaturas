@@ -3,8 +3,10 @@ package com.controle_de_assinaturas.kafka.consumer;
 import com.controle_de_assinaturas.events.entity.Event;
 import com.controle_de_assinaturas.events.entity.Type;
 import com.controle_de_assinaturas.events.repositorie.EventRepository;
+import com.controle_de_assinaturas.kafka.exceptions.JsonNodeErro;
 import com.controle_de_assinaturas.subscriptions.entity.Status;
 import com.controle_de_assinaturas.subscriptions.entity.Subscription;
+import com.controle_de_assinaturas.subscriptions.execeptions.SubscriptionNotFound;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.controle_de_assinaturas.subscriptions.repositorie.SubscriptionRepository;
@@ -40,8 +42,7 @@ public class EventConsumer {
             eventRepository.save(newEvent);
 
         } catch (Exception e) {
-            System.err.println("Erro inesperado: " + e.getMessage());
-            e.printStackTrace();
+            throw new JsonNodeErro(e.getMessage());
         }
 
     }
@@ -63,18 +64,19 @@ public class EventConsumer {
             Type type = Type.UNKNOWN;
 
             Subscription subscription = subscriptionRepository.findById(subscriptionId)
-                    .orElseThrow();
-
-            subscription.setStatus(Status.Ativa);
-
-            subscriptionRepository.save(subscription);
+                    .orElseThrow(SubscriptionNotFound::new);
 
             if(event.equals("payment_success")) {
-                
+                subscription.setStatus(Status.Ativa);
                 type = Type.payment_success;
+
             } else if (event.equals("payment_failed")) {
+                subscription.setStatus(Status.Cancelada);
                 type = Type.payment_failed;
+
             }
+
+            subscriptionRepository.save(subscription);
 
             if(type != type.UNKNOWN) {
                 try {
@@ -85,8 +87,7 @@ public class EventConsumer {
                     eventRepository.save(newEvent);
 
                 } catch (Exception e) {
-                    System.err.println("Erro inesperado: " + e.getMessage());
-                    e.printStackTrace();
+                    throw new JsonNodeErro(e.getMessage());
                 }
             }
 

@@ -2,6 +2,7 @@ package com.controle_de_assinaturas.subscriptions.service;
 
 import com.controle_de_assinaturas.kafka.producer.SubscriptionProducer;
 import com.controle_de_assinaturas.plans.entity.Plan;
+import com.controle_de_assinaturas.plans.exceptions.PlanNotFound;
 import com.controle_de_assinaturas.plans.repositorie.PlanRepository;
 import com.controle_de_assinaturas.subscriptions.entity.Subscription;
 import com.controle_de_assinaturas.subscriptions.repositorie.SubscriptionRepository;
@@ -48,7 +49,7 @@ public class SubscriptionService {
 
         } else {
 
-            throw new RuntimeException();
+            throw new PlanNotFound();
         }
     }
 }

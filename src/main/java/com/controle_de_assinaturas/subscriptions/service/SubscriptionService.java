@@ -30,26 +30,19 @@ public class SubscriptionService {
 
     public SubscriptionResponse createSubscription(SubscriptionEntryDTO data) {
 
-        Optional<Plan> optionalPlan = planRepository.findById(data.getPlanId());
+        Plan plan = planRepository.findById(data.getPlanId())
+                .orElseThrow(PlanNotFound::new);
 
-        if(optionalPlan.isPresent()) {
-
-            Plan plan = optionalPlan.get();
-
-            Subscription newSubscription = new Subscription(plan,
+        Subscription newSubscription = new Subscription(plan,
                     data.getCustomerEmail());
 
-            subscriptionRepository.save(newSubscription);
+        subscriptionRepository.save(newSubscription);
 
-            subscriptionProducer.sendSubscriptionCreateEvent(newSubscription);
+        subscriptionProducer.sendSubscriptionCreateEvent(newSubscription);
 
-            return new SubscriptionResponse(newSubscription.getId(),
+        return new SubscriptionResponse(newSubscription.getId(),
                     newSubscription.getStatus(),
                     newSubscription.getNextBillingDate());
 
-        } else {
-
-            throw new PlanNotFound();
-        }
     }
 }

@@ -69,6 +69,10 @@ public class Plan {
         this.billingCycle = billingCycle;
     }
 
+    public void setSubscriptions(List<Subscription> subscriptions) {
+        this.subscriptions = subscriptions;
+    }
+
     public StatusSubscriptionsPlan getSubscriptions() {
 
         int assinaturasAtivas = 0;

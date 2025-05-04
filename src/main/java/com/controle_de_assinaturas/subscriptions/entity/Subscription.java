@@ -37,6 +37,10 @@ public class Subscription {
         this.customerEmail = customerEmail;
     }
 
+    public void setId(String id) {
+        this.id = id;
+    }
+
     public String getId() {
         return id;
     }
